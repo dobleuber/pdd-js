@@ -32,6 +32,30 @@ export const configFileSchema = z
       .strict()
       .optional(),
     protectedPaths: z.array(z.string()).optional(),
+    mutate: z
+      .object({
+        files: z.array(z.string().min(1)).min(1).optional(),
+        thresholds: z
+          .object({
+            high: z.number().min(0).max(100).optional(),
+            low: z.number().min(0).max(100).optional(),
+            break: z.number().min(0).max(100).nullable().optional(),
+          })
+          .strict()
+          .optional(),
+        concurrency: z.number().int().min(1).optional(),
+        timeoutMs: z.number().int().min(1).optional(),
+        typecheck: z.boolean().optional(),
+      })
+      .strict()
+      .optional(),
+    coverage: z
+      .object({
+        failOnUncovered: z.boolean().optional(),
+        ignore: z.array(z.string().min(1)).optional(),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 
@@ -53,6 +77,20 @@ export interface PddConfig {
   guard: { rules: Record<string, RuleSetting>; ignore: string[] };
   lock: { include: string[] };
   protectedPaths: string[];
+  mutate: MutateConfig;
+  coverage: { failOnUncovered: boolean; ignore: string[] };
+}
+
+export interface MutateConfig {
+  /** Files to mutate; null means "the src globs minus tests and the laws folder". */
+  files: string[] | null;
+  thresholds: { high: number; low: number; break: number | null };
+  /** Parallel Stryker workers; null lets Stryker decide. */
+  concurrency: number | null;
+  /** Extra time each mutant run may take, on top of the measured baseline (Stryker's timeoutMS). */
+  timeoutMs: number;
+  /** Discard mutants that do not type-check (Stryker's TypeScript checker). */
+  typecheck: boolean;
 }
 
 export const DEFAULTS = {
@@ -65,4 +103,6 @@ export const DEFAULTS = {
   typecheck: true,
   tsconfig: "tsconfig.json",
   lockInclude: ["tsconfig.json", ".github/workflows/*.yml", ".github/workflows/*.yaml"],
+  mutateThresholds: { high: 80, low: 60, break: null },
+  mutateTimeoutMs: 10_000,
 } as const;

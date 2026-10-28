@@ -1,6 +1,10 @@
 node_modules/
 dist/
 *.tsbuildinfo
-coverage/
+# test-coverage output (not src/coverage, which is pdd code)
+/coverage/
+/packages/*/coverage/
+/examples/*/coverage/
+/redteam/coverage/
 reports/
 .stryker-tmp/

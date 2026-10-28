@@ -7,7 +7,7 @@ import type { PddConfig } from "../config/schema.js";
 import { isSniffedEnvVar } from "../shared/env.js";
 import { relPosix } from "../shared/paths.js";
 import { discoverLawFiles } from "./discover.js";
-import { summarize, type ChildInit, type FileResult, type LawResult, type LawsReport } from "./report.js";
+import { summarize, type ChildInit, type FileResult, type LawResult, type LawsReport, type MutationReport } from "./report.js";
 import { scanLawFile } from "./static-count.js";
 
 export interface RunLawsOptions {
@@ -17,6 +17,16 @@ export interface RunLawsOptions {
   runsOverride?: number;
   /** Override the law files (absolute paths); defaults to discovery under lawsDir. */
   files?: string[];
+  /** pdd mutate only: exact law names to run in this file. */
+  names?: string[];
+  /** pdd mutate only: stop at the first failing law. */
+  bail?: boolean;
+  /** pdd mutate only: activate a mutant and/or collect Stryker coverage. */
+  mutation?: { activeMutant: string | null; hitLimit: number | null; testIdPrefix: string };
+  /** Overrides config.fileTimeoutMs for this run. */
+  fileTimeoutMs?: number;
+  /** Kills the law process when aborted (pdd mutate disposes its runs this way). */
+  signal?: AbortSignal;
 }
 
 const CHILD_ENTRY = fileURLToPath(new URL("./child-entry.js", import.meta.url));
@@ -48,7 +58,7 @@ export async function runLawFile(file: string, opts: RunLawsOptions): Promise<Fi
   const laws: LawResult[] = [];
   let output = "";
   let loadError: string | undefined;
-  let done: { registered: number; names: string[] } | undefined;
+  let done: { registered: number; names: string[]; mutation?: MutationReport } | undefined;
   let readyReceived = false;
   let timedOut = false;
 
@@ -74,6 +84,9 @@ export async function runLawFile(file: string, opts: RunLawsOptions): Promise<Fi
     runsOverride: opts.runsOverride ?? null,
     timeoutMs: config.timeoutMs,
     filter: opts.filter ?? null,
+    names: opts.names ?? null,
+    bail: opts.bail === true,
+    mutation: opts.mutation ?? null,
   };
 
   child.on("message", (message: unknown) => {
@@ -102,6 +115,7 @@ export async function runLawFile(file: string, opts: RunLawsOptions): Promise<Fi
         break;
       case "done":
         done = { registered: Number(message.registered), names: (message.names as string[]) ?? [] };
+        if (opts.mutation !== undefined && isRecord(message.mutation)) done.mutation = message.mutation as unknown as MutationReport;
         break;
       default:
         tampering.push(`unknown report message type: ${String(message.type)}`);
@@ -113,25 +127,30 @@ export async function runLawFile(file: string, opts: RunLawsOptions): Promise<Fi
     signal: NodeJS.Signals | null;
     spawnError?: Error;
   }>((resolve) => {
+    const fileTimeoutMs = opts.fileTimeoutMs ?? config.fileTimeoutMs;
     const timer = setTimeout(() => {
       timedOut = true;
       child.kill("SIGKILL");
-    }, config.fileTimeoutMs);
-    child.on("error", (err) => {
+    }, fileTimeoutMs);
+    const abort = (): void => {
+      child.kill("SIGKILL");
+    };
+    opts.signal?.addEventListener("abort", abort, { once: true });
+    if (opts.signal?.aborted) abort();
+    const finish = (value: { code: number | null; signal: NodeJS.Signals | null; spawnError?: Error }): void => {
       clearTimeout(timer);
-      resolve({ code: null, signal: null, spawnError: err });
-    });
-    child.on("close", (c, s) => {
-      clearTimeout(timer);
-      resolve({ code: c, signal: s });
-    });
+      opts.signal?.removeEventListener("abort", abort);
+      resolve(value);
+    };
+    child.on("error", (err) => finish({ code: null, signal: null, spawnError: err }));
+    child.on("close", (c, s) => finish({ code: c, signal: s }));
   });
 
   let error: string | undefined;
   if (spawnError) {
     error = `could not start the law process: ${spawnError.message}`;
   } else if (timedOut) {
-    error = `the law file did not finish within fileTimeoutMs (${config.fileTimeoutMs} ms)`;
+    error = `the law file did not finish within fileTimeoutMs (${opts.fileTimeoutMs ?? config.fileTimeoutMs} ms)`;
   } else if (loadError !== undefined) {
     error = `could not load the law file:\n${loadError}`;
     if (/\.laws\.ts$/.test(file) && /require|not been linked|ERR_REQUIRE_ESM/.test(loadError)) {
@@ -166,6 +185,9 @@ export async function runLawFile(file: string, opts: RunLawsOptions): Promise<Fi
 
   const result: FileResult = { file: relFile, status, laws, tampering, output };
   if (error !== undefined) result.error = error;
+  if (timedOut) result.timedOut = true;
+  if (!timedOut && !done && signal !== null && !opts.signal?.aborted) result.crashSignal = signal;
+  if (done?.mutation !== undefined) result.mutation = done.mutation;
   return result;
 }
 

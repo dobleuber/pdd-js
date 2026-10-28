@@ -33,7 +33,26 @@
     "typescript": "^5.9.3",
     "zod": "^4.6.7"
   },
+  "peerDependencies": {
+    "@stryker-mutator/api": "^10.1.1",
+    "@stryker-mutator/core": "^10.1.1",
+    "@stryker-mutator/typescript-checker": "^10.1.1"
+  },
+  "peerDependenciesMeta": {
+    "@stryker-mutator/api": {
+      "optional": true
+    },
+    "@stryker-mutator/core": {
+      "optional": true
+    },
+    "@stryker-mutator/typescript-checker": {
+      "optional": true
+    }
+  },
   "devDependencies": {
+    "@stryker-mutator/api": "10.1.1",
+    "@stryker-mutator/core": "10.1.1",
+    "@stryker-mutator/typescript-checker": "10.1.1",
     "@types/node": "^26.6.5",
     "@types/picomatch": "^4.0.3",
     "vitest": "^5.0.5"

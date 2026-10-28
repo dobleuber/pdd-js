@@ -5,7 +5,9 @@ import { guardCommand } from "./commands/guard.js";
 import { hookCommand } from "./commands/hook.js";
 import { initCommand } from "./commands/init.js";
 import { lockCommand } from "./commands/lock.js";
-import { mutateCommand, smtCommand } from "./commands/stubs.js";
+import { coverageCommand } from "./commands/coverage.js";
+import { mutateCommand } from "./commands/mutate.js";
+import { smtCommand } from "./commands/stubs.js";
 import { ExitCode, PddError } from "./shared/exit-codes.js";
 import { pc } from "./shared/output.js";
 import { PDD_VERSION } from "./shared/version.js";
@@ -67,7 +69,20 @@ program
   .description("Claude Code PreToolUse hook (reads the hook JSON on stdin)")
   .action(() => run(() => hookCommand()));
 
-program.command("mutate").description("(phase 3) mutation testing to measure how strong the laws are").action(() => run(mutateCommand));
+program
+  .command("mutate")
+  .description("mutation testing (Stryker): inject small bugs and report the ones no law catches")
+  .option("--seed <n>", "reuse a seed (not allowed in CI)")
+  .option("--json", "print the full report as JSON")
+  .option("--ci", "CI mode (also enabled by the CI environment variable)")
+  .action((opts) => run(() => mutateCommand(opts)));
+
+program
+  .command("coverage")
+  .description("list exported functions that no law reaches")
+  .option("--json", "print the report as JSON")
+  .option("--strict", "exit 6 if any export is not reached by a law")
+  .action((opts) => run(() => coverageCommand(opts)));
 program.command("smt").description("(phase 4, experimental) exhaustive checking with Z3").action(() => run(smtCommand));
 
 await program.parseAsync();

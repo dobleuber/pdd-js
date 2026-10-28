@@ -21,3 +21,5 @@ jobs:
       - run: pnpm --filter pdd test
       - run: pnpm --filter pdd-redteam test
       - run: pnpm --filter example-shopping-cart exec pdd check --ci
+      # Law strength: fails (exit 6) if the mutation score drops below the locked threshold.
+      - run: pnpm --filter example-shopping-cart exec pdd mutate --ci

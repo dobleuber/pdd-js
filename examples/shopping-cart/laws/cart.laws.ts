@@ -4,9 +4,19 @@
  */
 import { law, forAll } from "pdd";
 import { addItem, applyDiscount, createCart, itemCount, removeItem, total, type LineItem } from "../src/cart.js";
-import { arbCart, arbItems, arbLineItem, arbPercent, arbSku } from "./arbitraries.js";
+import { arbBadPercent, arbBadPrice, arbBadQty, arbCart, arbItems, arbLineItem, arbPercent, arbSku } from "./arbitraries.js";
 
 const lineTotal = (items: readonly LineItem[]): number => items.reduce((s, i) => s + i.price * i.qty, 0);
+
+/** True when `run` throws a RangeError. */
+const rejects = (run: () => unknown): boolean => {
+  try {
+    run();
+    return false;
+  } catch (e) {
+    return e instanceof RangeError;
+  }
+};
 
 law(
   "an empty cart costs nothing, whatever the discount",
@@ -57,4 +67,19 @@ law(
     addItem(cart, item);
     return cart.items.length === before;
   }),
+);
+
+law(
+  "a negative or fractional price is rejected",
+  forAll(arbCart, arbLineItem, arbBadPrice, (cart, item, price) => rejects(() => addItem(cart, { ...item, price }))),
+);
+
+law(
+  "a quantity below 1 or fractional is rejected",
+  forAll(arbCart, arbLineItem, arbBadQty, (cart, item, qty) => rejects(() => addItem(cart, { ...item, qty }))),
+);
+
+law(
+  "a discount outside 0–100 % or fractional is rejected",
+  forAll(arbCart, arbBadPercent, (cart, p) => rejects(() => applyDiscount(cart, p))),
 );

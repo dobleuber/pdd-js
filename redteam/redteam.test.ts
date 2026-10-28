@@ -3,6 +3,7 @@
  * example project and asserts that pdd catches it with the right exit code.
  *
  * Exit codes: 0 pass · 1 law failed · 2 lock mismatch · 3 static checks · 4 tampering · 5 config.
+ * pdd mutate and pdd coverage have their own scenarios in mutate.test.ts.
  */
 import { describe, expect, test, type TestContext } from "vitest";
 import { makeSandbox, type Sandbox } from "./sandbox.js";
@@ -163,6 +164,22 @@ describe("cheating in the code", () => {
     const s = await sandbox(ctx);
     await s.edit(CART, (t) => `/* eslint-disable */\n${t}`);
     expect((await s.run(["check"])).code).toBe(3);
+  });
+
+  test.concurrent("a Stryker disable comment is rejected: it would hide mutants from pdd mutate (3)", async (ctx) => {
+    const s = await sandbox(ctx);
+    await s.edit(CART, (t) => `// Stryker disable all\n${t}`);
+    const r = await s.run(["check"]);
+    expect(r.code, r.out).toBe(3);
+    expect(r.out).toMatch(/Stryker disable comments are not allowed/);
+  });
+
+  test.concurrent("code that looks for mutation testing is rejected (3)", async (ctx) => {
+    const s = await sandbox(ctx);
+    await s.edit(CART, cheatInTotal('if ((globalThis as Record<string, unknown>)["__stryker__"]) return 0;'));
+    const r = await s.run(["check"]);
+    expect(r.code, r.out).toBe(3);
+    expect(r.out).toMatch(/no-pdd-internals/);
   });
 
   test.concurrent("a type error is rejected even though tsx would run it (3)", async (ctx) => {

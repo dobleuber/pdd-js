@@ -82,12 +82,21 @@ export const noDynamicCode: GuardRule = {
 
 const FORBIDDEN_PACKAGES = /^(pdd|fast-check|tsx|esbuild)(\/|$)|^@fast-check\//;
 
+/** Names used by Stryker's instrumented code (`globalThis.__stryker__`, `stryMutAct_9fa48`, ...). */
+const STRYKER_INTERNALS = /__stryker|stryMutAct_|stryCov_|stryNS_/i;
+
 export const noPddInternals: GuardRule = {
   id: "no-pdd-internals",
-  description: "Production code must not import pdd, fast-check, the runner, node_modules paths or the laws.",
+  description: "Production code must not import pdd, fast-check, the runner, node_modules paths or the laws, nor touch Stryker's globals.",
   appliesTo: ["src"],
   defaultSeverity: "error",
   check(sf, ctx) {
+    // Code that detects mutation testing could fail on purpose and make every mutant look killed.
+    walk(sf, (n) => {
+      if ((ts.isIdentifier(n) || ts.isPrivateIdentifier(n) || ts.isStringLiteralLike(n)) && STRYKER_INTERNALS.test(n.text)) {
+        ctx.report(n, `production code must not refer to Stryker's internals ("${n.text}")`);
+      }
+    });
     for (const { node, spec } of moduleSpecifiers(sf)) {
       if (FORBIDDEN_PACKAGES.test(spec)) {
         ctx.report(node, `importing "${spec}" from production code is not allowed`);

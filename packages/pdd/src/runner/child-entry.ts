@@ -15,7 +15,7 @@ import * as fc from "fast-check";
 import { register as registerTsx } from "tsx/esm/api";
 import { claimRegistry, unwrapProperty, type LawRecord } from "../api/registry.js";
 import { snapshotIntrinsics } from "./intrinsics.js";
-import type { ChildInit, ChildMessage, LawResult } from "./report.js";
+import type { ChildInit, ChildMessage, LawResult, MutantCoverage, MutationReport } from "./report.js";
 
 const rawSend = typeof process.send === "function" ? process.send.bind(process) : undefined;
 const exit = process.exit.bind(process);
@@ -29,13 +29,44 @@ function send(message: ChildMessage | { type: "ready" }): Promise<void> {
   });
 }
 
+/** The object Stryker's injected code reads and writes (`globalThis.__stryker__`). */
+interface StrykerNamespace {
+  activeMutant?: string;
+  currentTestId?: string;
+  mutantCoverage?: MutantCoverage;
+  hitCount?: number;
+  hitLimit?: number;
+}
+
+/**
+ * pdd mutate only: install Stryker's namespace before any mutated code loads, so the
+ * active mutant is already set when module-level ("static") code runs.
+ */
+function installStrykerNamespace(init: ChildInit): StrykerNamespace | undefined {
+  if (init.mutation === null) return undefined;
+  const ns: StrykerNamespace = {};
+  if (init.mutation.activeMutant !== null) ns.activeMutant = init.mutation.activeMutant;
+  if (init.mutation.hitLimit !== null) {
+    ns.hitCount = 0;
+    ns.hitLimit = init.mutation.hitLimit;
+  }
+  (globalThis as { __stryker__?: StrykerNamespace }).__stryker__ = ns;
+  return ns;
+}
+
+function mutationReport(ns: StrykerNamespace | undefined): MutationReport | undefined {
+  if (ns === undefined) return undefined;
+  return { mutantCoverage: ns.mutantCoverage ?? null, hitCount: ns.hitCount ?? null };
+}
+
 function formatError(e: unknown): string {
   if (e instanceof Error) return e.stack ?? `${e.name}: ${e.message}`;
   return String(e);
 }
 
-async function runLaw(record: LawRecord, init: ChildInit): Promise<LawResult> {
+async function runLaw(record: LawRecord, init: ChildInit, ns: StrykerNamespace | undefined): Promise<LawResult> {
   const start = clock();
+  if (ns !== undefined && init.mutation !== null) ns.currentTestId = `${init.mutation.testIdPrefix}${record.name}`;
   const numRuns = Math.max(record.options.runs ?? init.runs, init.runsOverride ?? 0);
   const base = { name: record.name, seed: init.seed, numRuns };
   let property: unknown;
@@ -79,6 +110,7 @@ async function runLaw(record: LawRecord, init: ChildInit): Promise<LawResult> {
 async function main(init: ChildInit): Promise<void> {
   const { nonce } = init;
   registerTsx();
+  const ns = installStrykerNamespace(init);
   const changedIntrinsics = snapshotIntrinsics();
 
   try {
@@ -95,9 +127,11 @@ async function main(init: ChildInit): Promise<void> {
   }
 
   const filter = init.filter === null ? null : new RegExp(init.filter);
+  const only = init.names === null ? null : new Set(init.names);
   const total = registry.count();
   const names: string[] = [];
   const seen = new Set<string>();
+  let bailed = false;
 
   for (let i = 0; i < total; i++) {
     const record = registry.at(i);
@@ -106,10 +140,12 @@ async function main(init: ChildInit): Promise<void> {
     let result: LawResult;
     if (seen.has(record.name)) {
       result = { name: record.name, status: "errored", numRuns: 0, seed: init.seed, timeMs: 0, error: "duplicate law name in this file" };
-    } else if (filter && !filter.test(record.name)) {
+    } else if (bailed || (filter && !filter.test(record.name)) || (only && !only.has(record.name))) {
       result = { name: record.name, status: "skipped", numRuns: 0, seed: init.seed, timeMs: 0 };
     } else {
-      result = await runLaw(record, init);
+      result = await runLaw(record, init, ns);
+      if (ns !== undefined) delete ns.currentTestId;
+      if (init.bail && (result.status === "failed" || result.status === "errored")) bailed = true;
     }
     seen.add(record.name);
     await send({ nonce, type: "law", result });
@@ -124,7 +160,8 @@ async function main(init: ChildInit): Promise<void> {
     }
   }
 
-  await send({ nonce, type: "done", registered: total, names });
+  const mutation = mutationReport(ns);
+  await send(mutation === undefined ? { nonce, type: "done", registered: total, names } : { nonce, type: "done", registered: total, names, mutation });
   exit(0);
 }
 
@@ -132,6 +169,9 @@ if (!rawSend) {
   console.error("pdd: this file is started by `pdd check`; do not run it directly.");
   exit(70);
 }
+
+// If the orchestrator goes away (pdd mutate disposing a worker), do not linger.
+process.once("disconnect", () => exit(0));
 
 process.once("message", (message) => {
   main(message as ChildInit).catch(async (e: unknown) => {

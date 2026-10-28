@@ -1,8 +1,7 @@
-import { existsSync } from "node:fs";
-import path from "node:path";
 import ts from "typescript";
 import type { PddConfig } from "../config/schema.js";
 import { relPosix } from "../shared/paths.js";
+import { loadProjectProgram } from "../shared/program.js";
 
 export interface TypeDiagnostic {
   file?: string;
@@ -30,25 +29,19 @@ function toDiagnostic(root: string, d: ts.Diagnostic): TypeDiagnostic {
  */
 export function runTypecheck(config: PddConfig): TypecheckReport {
   if (!config.typecheck) return { status: "skipped", reason: "typecheck is disabled in pdd.config.json" };
-  const tsconfigPath = path.resolve(config.root, config.tsconfig);
-  if (!existsSync(tsconfigPath)) return { status: "skipped", reason: `${config.tsconfig} not found` };
-
-  const read = ts.readConfigFile(tsconfigPath, ts.sys.readFile);
-  if (read.error) {
-    return { status: "done", tsconfig: config.tsconfig, files: 0, strict: false, diagnostics: [toDiagnostic(config.root, read.error)] };
+  const loaded = loadProjectProgram(config);
+  if (loaded.status === "missing") return { status: "skipped", reason: `${config.tsconfig} not found` };
+  if (loaded.status === "unreadable") {
+    return { status: "done", tsconfig: config.tsconfig, files: 0, strict: false, diagnostics: [toDiagnostic(config.root, loaded.error)] };
   }
-  const parsed = ts.parseJsonConfigFileContent(read.config, ts.sys, path.dirname(tsconfigPath), undefined, tsconfigPath);
-  const options: ts.CompilerOptions = { ...parsed.options, noEmit: true };
-  delete options.noCheck;
-  const program = ts.createProgram({ rootNames: parsed.fileNames, options, projectReferences: parsed.projectReferences ?? [] });
-  const diagnostics = [...parsed.errors, ...ts.getPreEmitDiagnostics(program)]
+  const diagnostics = [...loaded.configErrors, ...ts.getPreEmitDiagnostics(loaded.program)]
     .filter((d) => d.category === ts.DiagnosticCategory.Error)
     .map((d) => toDiagnostic(config.root, d));
   return {
     status: "done",
     tsconfig: config.tsconfig,
-    files: parsed.fileNames.length,
-    strict: parsed.options.strict === true,
+    files: loaded.parsed.fileNames.length,
+    strict: loaded.parsed.options.strict === true,
     diagnostics,
   };
 }

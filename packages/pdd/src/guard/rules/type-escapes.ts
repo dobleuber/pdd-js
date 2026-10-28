@@ -4,6 +4,8 @@ import { comments, walk } from "../ast.js";
 import type { GuardRule } from "../types.js";
 
 const TS_SUPPRESS = /@ts-(ignore|expect-error|nocheck)\b/;
+/** `// Stryker disable ...` hides mutants from `pdd mutate`, which would make weak laws look strong. */
+const MUTATION_SUPPRESS = /\bStryker\s+(disable|restore)\b/i;
 const LINT_SUPPRESS = /\b(eslint-disable(-next-line|-line)?|eslint\s+[\w@/-]+\s*:\s*(0|off|"off"|'off')|biome-ignore|oxlint-disable(-next-line)?|deno-lint-ignore(-file)?)\b/;
 
 export const noExplicitAny: GuardRule = {
@@ -33,12 +35,13 @@ export const noTsSuppress: GuardRule = {
 
 export const noLintSuppress: GuardRule = {
   id: "no-eslint-disable",
-  description: "Inline linter suppressions (eslint-disable, biome-ignore, ...) are not allowed.",
+  description: "Inline linter and mutation-testing suppressions (eslint-disable, biome-ignore, Stryker disable, ...) are not allowed.",
   appliesTo: ["src", "test"],
   defaultSeverity: "error",
   check(sf, ctx) {
     for (const c of comments(sf)) {
       if (LINT_SUPPRESS.test(c.text)) ctx.report(c.pos, "inline linter suppression is not allowed");
+      else if (MUTATION_SUPPRESS.test(c.text)) ctx.report(c.pos, "Stryker disable comments are not allowed: they hide mutants from pdd mutate");
     }
   },
 };

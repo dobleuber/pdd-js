@@ -52,6 +52,15 @@ export function parseConfig(root: string, raw: string): PddConfig {
     }
   }
 
+  const thresholds = {
+    high: c.mutate?.thresholds?.high ?? DEFAULTS.mutateThresholds.high,
+    low: c.mutate?.thresholds?.low ?? DEFAULTS.mutateThresholds.low,
+    break: c.mutate?.thresholds?.break ?? DEFAULTS.mutateThresholds.break,
+  };
+  if (thresholds.low > thresholds.high) {
+    throw configError(`"mutate.thresholds.low" (${thresholds.low}) must not be above "high" (${thresholds.high})`);
+  }
+
   return {
     root,
     configPath: path.join(root, CONFIG_FILE),
@@ -66,6 +75,14 @@ export function parseConfig(root: string, raw: string): PddConfig {
     guard: { rules, ignore: c.guard?.ignore ?? [] },
     lock: { include: c.lock?.include ?? [...DEFAULTS.lockInclude] },
     protectedPaths: c.protectedPaths ?? [],
+    mutate: {
+      files: c.mutate?.files ?? null,
+      thresholds,
+      concurrency: c.mutate?.concurrency ?? null,
+      timeoutMs: c.mutate?.timeoutMs ?? DEFAULTS.mutateTimeoutMs,
+      typecheck: c.mutate?.typecheck ?? (c.typecheck ?? DEFAULTS.typecheck),
+    },
+    coverage: { failOnUncovered: c.coverage?.failOnUncovered ?? false, ignore: c.coverage?.ignore ?? [] },
   };
 }
 

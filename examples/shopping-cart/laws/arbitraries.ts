@@ -16,3 +16,22 @@ export const arbItems: Arbitrary<LineItem[]> = arb.array(arbLineItem, { maxLengt
 export const arbCart: Arbitrary<Cart> = arbItems.map((items) => items.reduce(addItem, createCart()));
 
 export const arbPercent: Arbitrary<number> = arb.integer({ min: 0, max: 100 });
+
+/** Prices a cart must reject: negative, or not a whole number of cents. */
+export const arbBadPrice: Arbitrary<number> = arb.oneof(
+  arb.integer({ min: -100_000, max: -1 }),
+  arb.integer({ min: 0, max: 100_000 }).map((n) => n + 0.5),
+);
+
+/** Quantities a cart must reject: below 1, or fractional. */
+export const arbBadQty: Arbitrary<number> = arb.oneof(
+  arb.integer({ min: -20, max: 0 }),
+  arb.integer({ min: 1, max: 20 }).map((n) => n + 0.5),
+);
+
+/** Discounts that must be rejected: below 0, above 100, or fractional. */
+export const arbBadPercent: Arbitrary<number> = arb.oneof(
+  arb.integer({ min: -1_000, max: -1 }),
+  arb.integer({ min: 101, max: 1_000 }),
+  arb.integer({ min: 0, max: 99 }).map((n) => n + 0.5),
+);

@@ -14,5 +14,12 @@ const SNIFFED_ENV_VARS = new Set([
 ]);
 
 export function isSniffedEnvVar(name: string): boolean {
-  return SNIFFED_ENV_VARS.has(name) || name.startsWith("PDD_") || name.startsWith("VITEST_") || name.startsWith("GITHUB_");
+  return (
+    SNIFFED_ENV_VARS.has(name) ||
+    name.startsWith("PDD_") ||
+    name.startsWith("VITEST_") ||
+    name.startsWith("GITHUB_") ||
+    name.startsWith("__STRYKER_") ||
+    name.startsWith("STRYKER_")
+  );
 }

@@ -60,7 +60,11 @@ export function exitCodeFor(report: Omit<CheckReport, "exitCode">): number {
   return ExitCode.OK;
 }
 
-export async function checkCommand(opts: CheckOptions): Promise<number> {
+/**
+ * Runs the whole check pipeline without printing anything. `fixedSeed` is for
+ * pdd mutate, which picks the seed itself and runs the same one in its baseline.
+ */
+export async function runCheck(opts: CheckOptions, fixedSeed?: number): Promise<{ report: CheckReport; config: PddConfig }> {
   const ci = opts.ci === true || isCI();
   const config = loadConfig();
   if (ci && opts.seed !== undefined) {
@@ -77,7 +81,7 @@ export async function checkCommand(opts: CheckOptions): Promise<number> {
     }
   }
   const runsOverride = opts.runs === undefined ? undefined : parseRuns(opts.runs, config);
-  const seed = opts.seed === undefined ? makeSeed() : parseSeed(opts.seed);
+  const seed = fixedSeed ?? (opts.seed === undefined ? makeSeed() : parseSeed(opts.seed));
 
   const lawFiles = await discoverLawFiles(config);
   if (lawFiles.length === 0) {
@@ -103,7 +107,11 @@ export async function checkCommand(opts: CheckOptions): Promise<number> {
     partial.laws = await runLaws(runOpts);
   }
 
-  const report: CheckReport = { ...partial, exitCode: exitCodeFor(partial) };
+  return { report: { ...partial, exitCode: exitCodeFor(partial) }, config };
+}
+
+export async function checkCommand(opts: CheckOptions): Promise<number> {
+  const { report, config } = await runCheck(opts);
   if (opts.json) process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
   else printCheck(report, config, opts);
   return report.exitCode;
@@ -132,7 +140,7 @@ function printFile(file: FileResult, seed: number): void {
   }
 }
 
-function printCheck(report: CheckReport, config: PddConfig, opts: CheckOptions): void {
+export function printCheck(report: CheckReport, config: PddConfig, opts: CheckOptions): void {
   const runs = opts.runs ?? String(config.runs);
   console.log(pc.bold(`pdd check`) + pc.dim(`  seed=${report.seed}  runs≥${runs}${report.ci ? "  ci" : ""}`));
 

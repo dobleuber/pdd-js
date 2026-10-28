@@ -32,6 +32,13 @@ describe("type escapes", () => {
     expect(ids("// a normal comment about eslint\nconst a = 1;")).toEqual([]);
   });
 
+  test("no-eslint-disable also catches Stryker disable comments", () => {
+    expect(ids("// Stryker disable all\nconst a = 1;")).toContain("no-eslint-disable");
+    expect(ids("// Stryker disable next-line StringLiteral: reason\nconst a = 'x';")).toContain("no-eslint-disable");
+    expect(ids("/* Stryker restore all */")).toContain("no-eslint-disable");
+    expect(ids("// Stryker found no issues here\nconst a = 1;")).toEqual([]);
+  });
+
   test("no-unsafe-cast", () => {
     expect(ids("const n = ('x' as unknown) as number;")).toContain("no-unsafe-cast");
     expect(ids("const n = 'x' as unknown as number;")).toContain("no-unsafe-cast");
@@ -104,12 +111,20 @@ describe("runtime integrity", () => {
     expect(ids(`import { z } from "zod";`)).toEqual([]);
   });
 
+  test("no-pdd-internals flags Stryker's globals", () => {
+    expect(ids("if ((globalThis as Record<string, unknown>).__stryker__) throw new Error();")).toContain("no-pdd-internals");
+    expect(ids("const ns = globalThis['__stryker__'];")).toContain("no-pdd-internals");
+    expect(ids("declare function stryMutAct_9fa48(id: string): boolean;")).toContain("no-pdd-internals");
+    expect(ids("const stryker = 'a mutation testing tool';")).toEqual([]);
+  });
+
   test("no-env-sniff", () => {
     expect(ids("if (process.env.CI) {}")).toContain("no-env-sniff");
     expect(ids("const x = process.env['PDD_SEED'];")).toContain("no-env-sniff");
     expect(ids("const { VITEST } = process.env;")).toContain("no-env-sniff");
     expect(ids("const env = globalThis.process?.env; if (env?.CI) {}")).toContain("no-env-sniff");
     expect(ids("const { GITHUB_ACTIONS: gh } = someEnv;")).toContain("no-env-sniff");
+    expect(ids("const m = process.env.__STRYKER_ACTIVE_MUTANT__;")).toContain("no-env-sniff");
     expect(ids("const url = process.env.DATABASE_URL;")).toEqual([]);
   });
 

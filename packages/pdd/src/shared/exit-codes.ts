@@ -6,6 +6,8 @@ export const ExitCode = {
   STATIC_CHECK_FAILED: 3,
   TAMPERING: 4,
   CONFIG_ERROR: 5,
+  /** pdd mutate / pdd coverage: the laws are too weak (score below the break threshold, or uncovered exports). */
+  SPEC_TOO_WEAK: 6,
   NOT_IMPLEMENTED: 64,
   INTERNAL: 70,
 } as const;

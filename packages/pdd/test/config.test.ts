@@ -19,4 +19,15 @@ describe("config", () => {
     const c = parseConfig("/p", `{"guard": {"rules": {"no-non-null-assertion": ["error", {"max": 2}], "no-explicit-any": "off"}}}`);
     expect(c.guard.rules["no-non-null-assertion"]).toEqual(["error", { max: 2 }]);
   });
+
+  test("mutate and coverage settings have safe defaults and are validated", () => {
+    const c = parseConfig("/p", "{}");
+    expect(c.mutate).toEqual({ files: null, thresholds: { high: 80, low: 60, break: null }, concurrency: null, timeoutMs: 10_000, typecheck: true });
+    expect(c.coverage).toEqual({ failOnUncovered: false, ignore: [] });
+    const custom = parseConfig("/p", `{"typecheck": false, "mutate": {"thresholds": {"break": 70}, "concurrency": 2}}`);
+    expect(custom.mutate).toMatchObject({ thresholds: { high: 80, low: 60, break: 70 }, concurrency: 2, typecheck: false });
+    expect(() => parseConfig("/p", `{"mutate": {"thresholds": {"low": 90, "high": 80}}}`)).toThrow(/must not be above/);
+    expect(() => parseConfig("/p", `{"mutate": {"thresholds": {"break": 120}}}`)).toThrow(/break/);
+    expect(() => parseConfig("/p", `{"mutate": {"excludedMutations": ["StringLiteral"]}}`)).toThrow(/invalid pdd.config.json/);
+  });
 });
