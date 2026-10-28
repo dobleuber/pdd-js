@@ -83,11 +83,15 @@ async function runLaw(record: LawRecord, init: ChildInit, ns: StrykerNamespace |
       timeMs: clock() - start,
     };
   }
+  // With examples (pdd smt replaying a Z3 counterexample), fast-check runs exactly those
+  // tuples: they count towards numRuns, and endOnFailure keeps the original values.
+  const examples = init.examples;
   const details = await fc.check(property as fc.IRawProperty<unknown[]>, {
     seed: init.seed,
-    numRuns,
+    numRuns: examples === null ? numRuns : examples.length,
     interruptAfterTimeLimit: record.options.timeoutMs ?? init.timeoutMs,
     markInterruptAsFailure: true,
+    ...(examples === null ? {} : { examples, endOnFailure: true }),
   });
   const timeMs = clock() - start;
   if (!details.failed) return { ...base, status: "passed", numRuns: details.numRuns, timeMs };

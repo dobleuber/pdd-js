@@ -23,3 +23,5 @@ jobs:
       - run: pnpm --filter example-shopping-cart exec pdd check --ci
       # Law strength: fails (exit 6) if the mutation score drops below the locked threshold.
       - run: pnpm --filter example-shopping-cart exec pdd mutate --ci
+      # Proofs: every law marked { smt: true } must be proven by Z3 (requireProof in the config).
+      - run: pnpm --filter example-shopping-cart exec pdd smt --ci

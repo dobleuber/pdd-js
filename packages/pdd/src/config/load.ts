@@ -83,6 +83,7 @@ export function parseConfig(root: string, raw: string): PddConfig {
       typecheck: c.mutate?.typecheck ?? (c.typecheck ?? DEFAULTS.typecheck),
     },
     coverage: { failOnUncovered: c.coverage?.failOnUncovered ?? false, ignore: c.coverage?.ignore ?? [] },
+    smt: { timeoutMs: c.smt?.timeoutMs ?? DEFAULTS.smtTimeoutMs, requireProof: c.smt?.requireProof ?? false },
   };
 }
 

@@ -17,6 +17,12 @@ export interface LawOptions {
   runs?: number;
   /** Time budget for this law in milliseconds. Defaults to `timeoutMs` in pdd.config.json. */
   timeoutMs?: number;
+  /**
+   * Ask `pdd smt` to prove this law for every input with Z3 (experimental).
+   * Only a small subset of TypeScript can be proven; see docs/smt.md.
+   * `pdd check` ignores this option and tests the law as usual.
+   */
+  smt?: boolean;
 }
 
 export interface LawRecord {

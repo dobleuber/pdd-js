@@ -32,11 +32,18 @@ export function itemCount(cart: Cart): number {
   return cart.items.reduce((n, i) => n + i.qty, 0);
 }
 
-/** Total after a whole-percent discount, rounded in the customer's favour. */
-export function applyDiscount(cart: Cart, percent: number): number {
+/**
+ * A total after a whole-percent discount, rounded in the customer's favour.
+ * Pure integer arithmetic, so its laws can be proven for every input with `pdd smt`.
+ */
+export function discounted(totalCents: number, percent: number): number {
   if (!Number.isInteger(percent) || percent < 0 || percent > 100) {
     throw new RangeError("percent must be an integer between 0 and 100");
   }
-  const t = total(cart);
-  return t - Math.ceil((t * percent) / 100);
+  return totalCents - Math.ceil((totalCents * percent) / 100);
+}
+
+/** Total of the cart after a whole-percent discount. */
+export function applyDiscount(cart: Cart, percent: number): number {
+  return discounted(total(cart), percent);
 }

@@ -30,4 +30,11 @@ describe("config", () => {
     expect(() => parseConfig("/p", `{"mutate": {"thresholds": {"break": 120}}}`)).toThrow(/break/);
     expect(() => parseConfig("/p", `{"mutate": {"excludedMutations": ["StringLiteral"]}}`)).toThrow(/invalid pdd.config.json/);
   });
+
+  test("smt settings have safe defaults and are validated", () => {
+    expect(parseConfig("/p", "{}").smt).toEqual({ timeoutMs: 10_000, requireProof: false });
+    expect(parseConfig("/p", `{"smt": {"requireProof": true, "timeoutMs": 500}}`).smt).toEqual({ timeoutMs: 500, requireProof: true });
+    expect(() => parseConfig("/p", `{"smt": {"timeoutMs": 0}}`)).toThrow(/invalid pdd.config.json/);
+    expect(() => parseConfig("/p", `{"smt": {"assume": ["x > 0"]}}`)).toThrow(/invalid pdd.config.json/);
+  });
 });

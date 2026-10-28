@@ -15,6 +15,11 @@ export interface ChildInit {
   bail: boolean;
   /** Only set by pdd mutate. It travels in this nonce-protected message, never through the env. */
   mutation: MutationInit | null;
+  /**
+   * pdd smt only: run exactly these argument tuples (no generated cases, no shrinking).
+   * Used to replay a counterexample found by Z3 in the isolated runner.
+   */
+  examples: unknown[][] | null;
 }
 
 export interface MutationInit {

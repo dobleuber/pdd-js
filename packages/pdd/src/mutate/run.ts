@@ -1,13 +1,13 @@
 /** Builds Stryker's options from the (locked) pdd config and runs it in-process. */
 import { existsSync } from "node:fs";
 import { mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
-import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import type { PddConfig } from "../config/schema.js";
 import { ExitCode, PddError } from "../shared/exit-codes.js";
 import { relPosix } from "../shared/paths.js";
+import { resolvePackage } from "../shared/resolve.js";
 import { sourceFiles } from "../shared/program.js";
 import type { PddRunnerOptions } from "./stryker-plugin.js";
 
@@ -40,18 +40,6 @@ interface StrykerModule {
 
 function installHint(): string {
   return `pnpm add -D ${STRYKER_PACKAGES.map((p) => `${p}@^10.1.1`).join(" ")}`;
-}
-
-/** Resolves a package from the project first (where users install Stryker), then from pdd itself. */
-function resolvePackage(root: string, name: string): string | undefined {
-  for (const from of [path.join(root, "package.json"), fileURLToPath(import.meta.url)]) {
-    try {
-      return createRequire(from).resolve(name);
-    } catch {
-      // try the next location
-    }
-  }
-  return undefined;
 }
 
 export async function findStrykerConfigFiles(root: string): Promise<string[]> {

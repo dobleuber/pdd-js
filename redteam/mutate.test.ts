@@ -52,7 +52,7 @@ describe("pdd mutate", () => {
     const r = await s.run(["mutate", "--json"]);
     expect(r.code, r.out).toBe(6);
     const m = parse(r.stdout).mutation;
-    const discount = m?.survivors.filter((x) => x.function === "applyDiscount") ?? [];
+    const discount = m?.survivors.filter((x) => x.function === "discounted") ?? [];
     expect(discount.some((x) => /percent > 100/.test(x.original))).toBe(true);
     expect(m?.score).toBeLessThan(85);
   });

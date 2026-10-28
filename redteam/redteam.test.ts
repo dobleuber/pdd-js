@@ -138,7 +138,7 @@ describe("cheating in the code", () => {
 
   test.concurrent("a subtle off-by-one in the discount is caught (1)", async (ctx) => {
     const s = await sandbox(ctx);
-    await s.edit(CART, (t) => t.replace("return t - Math.ceil((t * percent) / 100);", "return t - Math.ceil((t * percent) / 100) + (percent === 0 ? 0 : 1);"));
+    await s.edit(CART, (t) => t.replace("return totalCents - Math.ceil((totalCents * percent) / 100);", "return totalCents - Math.ceil((totalCents * percent) / 100) + (percent === 0 ? 0 : 1);"));
     const r = await s.run(["check"]);
     expect(r.code, r.out).toBe(1);
     expect(r.out).toMatch(/100% makes it free/);

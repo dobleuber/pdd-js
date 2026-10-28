@@ -23,6 +23,8 @@ export interface RunLawsOptions {
   bail?: boolean;
   /** pdd mutate only: activate a mutant and/or collect Stryker coverage. */
   mutation?: { activeMutant: string | null; hitLimit: number | null; testIdPrefix: string };
+  /** pdd smt only: run exactly these argument tuples instead of generated cases. */
+  examples?: unknown[][];
   /** Overrides config.fileTimeoutMs for this run. */
   fileTimeoutMs?: number;
   /** Kills the law process when aborted (pdd mutate disposes its runs this way). */
@@ -87,6 +89,7 @@ export async function runLawFile(file: string, opts: RunLawsOptions): Promise<Fi
     names: opts.names ?? null,
     bail: opts.bail === true,
     mutation: opts.mutation ?? null,
+    examples: opts.examples ?? null,
   };
 
   child.on("message", (message: unknown) => {

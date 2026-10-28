@@ -36,7 +36,8 @@
   "peerDependencies": {
     "@stryker-mutator/api": "^10.1.1",
     "@stryker-mutator/core": "^10.1.1",
-    "@stryker-mutator/typescript-checker": "^10.1.1"
+    "@stryker-mutator/typescript-checker": "^10.1.1",
+    "z3-solver": "^5.3.2"
   },
   "peerDependenciesMeta": {
     "@stryker-mutator/api": {
@@ -47,6 +48,9 @@
     },
     "@stryker-mutator/typescript-checker": {
       "optional": true
+    },
+    "z3-solver": {
+      "optional": true
     }
   },
   "devDependencies": {
@@ -55,6 +59,7 @@
     "@stryker-mutator/typescript-checker": "10.1.1",
     "@types/node": "^26.6.5",
     "@types/picomatch": "^4.0.3",
-    "vitest": "^5.0.5"
+    "vitest": "^5.0.5",
+    "z3-solver": "5.3.2"
   }
 }

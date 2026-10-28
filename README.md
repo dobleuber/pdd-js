@@ -12,9 +12,11 @@ applies it to TypeScript, without rewriting anything:
    isolated runner that detects when the code under test tries to tamper with it.
 4. **A measure of law strength** (`pdd mutate`, `pdd coverage`): small bugs are injected into the
    code, and pdd reports the ones no law catches — the behaviour the spec does not pin down yet.
+5. **Proofs for pure integer code** (`pdd smt`, experimental): laws marked `{ smt: true }` are
+   proven for *every* input with the Z3 solver, not only for sampled ones.
 
-> This is not a mathematical proof: it is strong evidence that is hard to fake. See
-> [Limits](#limits) and [docs/smt-design.md](docs/smt-design.md).
+> Random testing is strong evidence that is hard to fake, not a mathematical proof; `pdd smt`
+> proves a small, explicit subset. See [Limits](#limits) and [docs/smt.md](docs/smt.md).
 
 ## Quick start
 
@@ -46,7 +48,7 @@ law(
 );
 ```
 
-- `law(name, forAll(...arbitraries, predicate), options?)` — options: `{ runs, timeoutMs }`.
+- `law(name, forAll(...arbitraries, predicate), options?)` — options: `{ runs, timeoutMs, smt }`.
 - `forAllAsync(...)` for async predicates.
 - `arb.*` — arbitraries (a curated subset of fast-check). Always import them from `"pdd"`.
 - The predicate **must return `true` or `false`**. A forgotten `return` (`undefined`) or a
@@ -67,7 +69,7 @@ Full example in [examples/shopping-cart](examples/shopping-cart).
 | `pdd hook` | Claude Code `PreToolUse` hook (reads JSON from stdin) |
 | `pdd mutate` | Mutation testing with Stryker: lists the injected bugs no law catches. `--seed`, `--json`, `--ci` |
 | `pdd coverage` | Lists exported functions no law reaches. `--json`, `--strict` |
-| `pdd smt` | Phase 4, experimental, not implemented yet |
+| `pdd smt` | Experimental: proves the laws marked `{ smt: true }` with Z3. `--strict`, `--seed`, `--json`, `--ci` |
 
 ### Exit codes
 
@@ -80,6 +82,7 @@ Full example in [examples/shopping-cart](examples/shopping-cart).
 | 4 | Tampering detected (modified built-ins, forged report, hidden laws, early exit) |
 | 5 | Configuration or usage error (e.g. `--seed` in CI) |
 | 6 | The laws are too weak: mutation score below `mutate.thresholds.break`, or `pdd coverage --strict` found exports no law reaches |
+| 7 | `pdd smt --strict` (or `smt.requireProof`): a law marked `{ smt: true }` is not proven |
 
 If the lock fails, `pdd check` stops there. Otherwise the priority is 4 > 3 > 1.
 
@@ -180,6 +183,35 @@ Pass the key only on that command; do not leave it exported in the shell where t
 They are configured in `pdd.config.json` (`"off" | "warn" | "error"` or `["error", { options }]`),
 which is under the lock: changing them is a spec change that a human reviews.
 
+## Proofs (experimental)
+
+For pure integer code, a law can be **proven** instead of sampled. Mark it with `{ smt: true }`
+and run `pdd smt` (it needs `pnpm add -D z3-solver`):
+
+```ts
+law(
+  "the discounted total is the exact price rounded down to the cent",
+  forAll(arbTotal, arbPercent, (t, p) => {
+    const exact100 = t * (100 - p);
+    const d100 = discounted(t, p) * 100;
+    return d100 <= exact100 && exact100 - d100 < 100;
+  }),
+  { smt: true },
+);
+```
+
+pdd translates the law and the functions it calls into logic and asks Z3 for an input that
+breaks it. **Proven** means no input the arbitraries can produce breaks it. A **counterexample**
+is replayed in the real runner before it is reported (exit 1). In the example, an
+`if (totalCents === 777_777_777 && percent === 37)` bug passes `pdd check`'s random cases and
+is found by `pdd smt` in under a second.
+
+Only a small subset is supported (integers, booleans, records, `if`/`return`/`throw`, `Math.floor`
+and friends, no loops or strings), and anything outside it is reported as *not proven* with the
+reason, never as proven. Overflow beyond `Number.MAX_SAFE_INTEGER`, division by zero and reachable
+`throw`s are proof obligations. Details, the supported subset and why a "proven" can be trusted:
+[docs/smt.md](docs/smt.md).
+
 ## Threat model
 
 Assumption: the agent can run any command and edit any local file. The local defenses (the hook,
@@ -205,10 +237,13 @@ by CI or has to go through a diff reviewed by a human.
 | Weak laws that let wrong code pass | `pdd mutate` with a locked `break` threshold (6) |
 | Hiding mutants (`// Stryker disable`, a `stryker.config.*` file) | Guard (3); `pdd mutate` refuses Stryker config files (5) |
 | Detecting mutation testing to fail on purpose | Guard (3) + tampering under a mutant fails the run (4) |
+| Code pdd smt cannot read correctly passing as proven | Unsupported code is *not proven* (7 with `--strict`); overflow, division by zero and `throw` are obligations; every counterexample is replayed in the runner |
+| A `.js` file next to the `.ts` file a proof read | The law is not translated: the runtime could load the other file |
 
 All of this is covered by the red-team suites: [33 scenarios](redteam/redteam.test.ts) that play a
 cheating agent against a copy of the example and check the exit code, plus
-[7 for `pdd mutate` and `pdd coverage`](redteam/mutate.test.ts).
+[7 for `pdd mutate` and `pdd coverage`](redteam/mutate.test.ts) and
+[7 for `pdd smt`](redteam/smt.test.ts).
 
 ## Limits
 
@@ -216,8 +251,9 @@ cheating agent against a copy of the example and check the exit code, plus
   letter and the result can still be wrong. Reviewing 20 laws is much easier than reviewing 500
   lines, but it is still human work. `pdd mutate` shows where they are weak; it cannot tell you
   what the laws should say.
-- **Random testing, not mathematical proof.** For exhaustive proofs of pure functions, see
-  [docs/smt-design.md](docs/smt-design.md).
+- **Random testing, not mathematical proof**, except for the laws `pdd smt` proves. Its subset is
+  small (pure integer code), and a proof only covers the ranges of the law's arbitraries. See
+  [docs/smt.md](docs/smt.md).
 - **The code under test runs in the same process as the runner.** A very elaborate attack could
   subvert it from the inside; the static rules, runtime checks and review make that hard, not
   impossible.
@@ -235,6 +271,7 @@ pnpm install
 pnpm test          # build + unit tests + red-team
 pnpm example       # build + pdd check on the example
 pnpm --filter example-shopping-cart exec pdd mutate   # mutation testing on the example
+pnpm --filter example-shopping-cart exec pdd smt      # proofs on the example
 ```
 
 Layout: `packages/pdd` (the tool), `examples/shopping-cart` (example project), `redteam` (cheat
@@ -246,4 +283,5 @@ scenarios), `docs/`.
 - **Phase 2 — Anti-cheat** ✔ lock + signature, guard, typecheck, hook, red-team.
 - **Phase 3 — Law strength** ✔ `pdd mutate` (Stryker with a pdd test-runner plugin), `pdd coverage`.
   Still open: a vitest adapter (convenience only, never the verdict).
-- **Phase 4 — Experimental SMT**: exhaustive proofs with Z3 for pure functions.
+- **Phase 4 — Experimental SMT** ✔ `pdd smt`: proofs with Z3 for pure integer code, with every
+  counterexample replayed in the runner. Next candidates: bounded arrays and loops, strings.

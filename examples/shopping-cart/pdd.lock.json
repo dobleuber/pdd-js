@@ -4,8 +4,9 @@
   "files": {
     "laws/arbitraries.ts": "7b35d2a24560cae5944c6a9427c2428cce1a1f948a0ea8154090c33f4e2d37d2",
     "laws/cart.laws.ts": "4eb53c11b772f97cdf6a8db6e39fcf81098906d585b522ae3fcb5ac59baeda64",
-    "pdd.config.json": "d0b3597d8ce7bdf5734f1b0a82820bcd83eb718b83308da378d32c45bb9dbbe5",
+    "laws/discount.laws.ts": "84d2bfc5d3e5c20548fceab533a5d955aee9c34d2f8bf765e4164169f27b0286",
+    "pdd.config.json": "95151c094b339308fb79e46bff851421bf470f50c2e73156e53720250a653669",
     "tsconfig.json": "c2c609dbadc68937556054bde21f204c44bc6aeb058b625c736967efe187765d"
   },
-  "rootHash": "67c91613de03697c37af807f67b217409362dadcf85532e51cfecdeae2a9eade"
+  "rootHash": "236e4d9a450ddf5418c6ec65a377c32033a9b2bc143228cd50f0052251ab9d80"
 }

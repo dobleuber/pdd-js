@@ -56,6 +56,13 @@ export const configFileSchema = z
       })
       .strict()
       .optional(),
+    smt: z
+      .object({
+        timeoutMs: z.number().int().min(1).optional(),
+        requireProof: z.boolean().optional(),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 
@@ -79,6 +86,14 @@ export interface PddConfig {
   protectedPaths: string[];
   mutate: MutateConfig;
   coverage: { failOnUncovered: boolean; ignore: string[] };
+  smt: SmtConfig;
+}
+
+export interface SmtConfig {
+  /** Time Z3 may spend on one law. */
+  timeoutMs: number;
+  /** Fail (exit 7) when a law marked { smt: true } is not proven. */
+  requireProof: boolean;
 }
 
 export interface MutateConfig {
@@ -105,4 +120,5 @@ export const DEFAULTS = {
   lockInclude: ["tsconfig.json", ".github/workflows/*.yml", ".github/workflows/*.yaml"],
   mutateThresholds: { high: 80, low: 60, break: null },
   mutateTimeoutMs: 10_000,
+  smtTimeoutMs: 10_000,
 } as const;

@@ -8,7 +8,8 @@ export const ExitCode = {
   CONFIG_ERROR: 5,
   /** pdd mutate / pdd coverage: the laws are too weak (score below the break threshold, or uncovered exports). */
   SPEC_TOO_WEAK: 6,
-  NOT_IMPLEMENTED: 64,
+  /** pdd smt with requireProof / --strict: a law marked { smt: true } could not be proven. */
+  NOT_PROVEN: 7,
   INTERNAL: 70,
 } as const;
 

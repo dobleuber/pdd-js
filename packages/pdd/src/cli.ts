@@ -7,7 +7,7 @@ import { initCommand } from "./commands/init.js";
 import { lockCommand } from "./commands/lock.js";
 import { coverageCommand } from "./commands/coverage.js";
 import { mutateCommand } from "./commands/mutate.js";
-import { smtCommand } from "./commands/stubs.js";
+import { smtCommand } from "./commands/smt.js";
 import { ExitCode, PddError } from "./shared/exit-codes.js";
 import { pc } from "./shared/output.js";
 import { PDD_VERSION } from "./shared/version.js";
@@ -83,6 +83,14 @@ program
   .option("--json", "print the report as JSON")
   .option("--strict", "exit 6 if any export is not reached by a law")
   .action((opts) => run(() => coverageCommand(opts)));
-program.command("smt").description("(phase 4, experimental) exhaustive checking with Z3").action(() => run(smtCommand));
+
+program
+  .command("smt")
+  .description("(experimental) prove the laws marked { smt: true } for every input, with Z3")
+  .option("--seed <n>", "reuse a seed for the pdd check baseline (not allowed in CI)")
+  .option("--strict", "exit 7 if a law marked { smt: true } is not proven")
+  .option("--json", "print the full report as JSON")
+  .option("--ci", "CI mode (also enabled by the CI environment variable)")
+  .action((opts) => run(() => smtCommand(opts)));
 
 await program.parseAsync();
