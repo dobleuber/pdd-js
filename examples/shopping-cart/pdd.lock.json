@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "algorithm": "sha256",
+  "files": {
+    "laws/arbitraries.ts": "05e7dc2d1343501d7722b357359baec102fc4e0141f9b255ae023d4e4fd158eb",
+    "laws/cart.laws.ts": "b306257d2a7297666a5f33581a89af5bc07f961f1eacff342fa41125a8e514d6",
+    "pdd.config.json": "405294473a6ef45e96897bfa131fe43eec514bb1d91a15352c7fa2e2900aa719",
+    "tsconfig.json": "c2c609dbadc68937556054bde21f204c44bc6aeb058b625c736967efe187765d"
+  },
+  "rootHash": "bdb469ae7024e6b8990634f4aaf6f3228b012a7c11ddac541ea93dd92cd2c911"
+}

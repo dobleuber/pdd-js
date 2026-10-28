@@ -1,0 +1,41 @@
+{
+  "name": "pdd",
+  "version": "0.1.0",
+  "description": "Proof-Driven Development for JS/TS: human-owned laws, a mechanical verdict and an anti-cheat layer for AI-written code.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "bin": {
+    "pdd": "dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/api/index.d.ts",
+      "default": "./dist/api/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "commander": "^15.0.0",
+    "fast-check": "^4.10.2",
+    "fast-glob": "^3.3.3",
+    "picocolors": "^1.1.1",
+    "picomatch": "^4.0.7",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "@types/picomatch": "^4.0.3",
+    "vitest": "^5.0.5"
+  }
+}

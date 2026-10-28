@@ -1,0 +1,10 @@
+{
+  "lawsDir": "laws",
+  "src": ["src/**/*.ts"],
+  "runs": 200,
+  "guard": {
+    "rules": {
+      "no-non-null-assertion": "error"
+    }
+  }
+}

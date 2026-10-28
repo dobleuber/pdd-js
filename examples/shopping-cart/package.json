@@ -1,0 +1,13 @@
+{
+  "name": "example-shopping-cart",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "pdd check",
+    "guard": "pdd guard",
+    "lock": "pdd lock"
+  },
+  "devDependencies": {
+    "pdd": "workspace:*"
+  }
+}

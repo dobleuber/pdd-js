@@ -1,0 +1,16 @@
+{
+  "name": "pdd-workspace",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "scripts": {
+    "build": "pnpm --filter pdd build",
+    "test": "pnpm build && pnpm --filter pdd test && pnpm --filter pdd-redteam test",
+    "test:unit": "pnpm --filter pdd test",
+    "redteam": "pnpm build && pnpm --filter pdd-redteam test",
+    "example": "pnpm build && pnpm --filter example-shopping-cart check"
+  }
+}
