@@ -8,6 +8,24 @@ importers:
 
   .: {}
 
+  examples/billing:
+    devDependencies:
+      '@stryker-mutator/api':
+        specifier: ^10.1.1
+        version: 10.1.1
+      '@stryker-mutator/core':
+        specifier: ^10.1.1
+        version: 10.1.1(@types/node@26.6.5)
+      '@stryker-mutator/typescript-checker':
+        specifier: ^10.1.1
+        version: 10.1.1(@stryker-mutator/core@10.1.1(@types/node@26.6.5))(typescript@5.9.3)
+      pdd:
+        specifier: workspace:*
+        version: link:../../packages/pdd
+      z3-solver:
+        specifier: ^5.3.2
+        version: 5.3.2
+
   examples/shopping-cart:
     devDependencies:
       '@stryker-mutator/api':

@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "algorithm": "sha256",
+  "files": {
+    "laws/invoice.laws.ts": "889e005a6d530f678b5d36dd7a81afb4c880498cfe244dc0295987cf14a0ce13",
+    "laws/ledger.laws.ts": "0a702b1220c9ddecf771b628dd994131d33af5aaa935b4ef248766ac290d8999",
+    "laws/money.laws.ts": "adee49931ada575afe476ee1ea495ba6ae0fa58bcff01907724b8db8ce043e36",
+    "laws/pricing.laws.ts": "4b490562b2dcd6650122b4a8f46fc66273c275c0ab1e0d03c6928ffa578a4f7e",
+    "laws/support.ts": "e9666071ff7197e134192484f95b4779aacbb06f1f6d8c2f5ba07ae8e79dff3d",
+    "pdd.config.json": "880338459b4a9c3378df54e87d3794177706588f2d671a40fbc601d407e87929",
+    "tsconfig.json": "c2c609dbadc68937556054bde21f204c44bc6aeb058b625c736967efe187765d"
+  },
+  "rootHash": "058c29a4aa373eee53950023d1912112798ce0cff9e871149fff78cfcb39d1ae"
+}

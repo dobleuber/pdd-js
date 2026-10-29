@@ -1,0 +1,20 @@
+{
+  "name": "example-billing",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "pdd check",
+    "guard": "pdd guard",
+    "lock": "pdd lock",
+    "mutate": "pdd mutate",
+    "smt": "pdd smt",
+    "coverage": "pdd coverage"
+  },
+  "devDependencies": {
+    "@stryker-mutator/api": "^10.1.1",
+    "@stryker-mutator/core": "^10.1.1",
+    "@stryker-mutator/typescript-checker": "^10.1.1",
+    "pdd": "workspace:*",
+    "z3-solver": "^5.3.2"
+  }
+}

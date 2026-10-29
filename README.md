@@ -56,7 +56,13 @@ law(
 - `law()` goes at the top level of the file, with a literal name. There is no `law.skip` or
   `law.only`.
 
-Full example in [examples/shopping-cart](examples/shopping-cart).
+Examples:
+
+- [examples/shopping-cart](examples/shopping-cart): a small cart. The place to start.
+- [examples/billing](examples/billing): a subscription billing engine in four modules (money,
+  pricing, invoices, a ledger). It shows Z3 proofs across modules (tiered pricing, proration,
+  plan changes), cents split exactly across invoice lines, a ledger checked step by step against
+  a reference model written in the law file, and `coverage.failOnUncovered`.
 
 ## Commands
 
@@ -272,9 +278,10 @@ pnpm test          # build + unit tests + red-team
 pnpm example       # build + pdd check on the example
 pnpm --filter example-shopping-cart exec pdd mutate   # mutation testing on the example
 pnpm --filter example-shopping-cart exec pdd smt      # proofs on the example
+pnpm --filter example-billing exec pdd check          # the larger example (also mutate, smt, coverage)
 ```
 
-Layout: `packages/pdd` (the tool), `examples/shopping-cart` (example project), `redteam` (cheat
+Layout: `packages/pdd` (the tool), `examples/*` (example projects), `redteam` (cheat
 scenarios), `docs/`.
 
 ### Roadmap

@@ -1,0 +1,25 @@
+{
+  "lawsDir": "laws",
+  "src": [
+    "src/**/*.ts"
+  ],
+  "runs": 200,
+  "guard": {
+    "rules": {
+      "no-non-null-assertion": "error"
+    }
+  },
+  "mutate": {
+    "thresholds": {
+      "high": 95,
+      "low": 85,
+      "break": 90
+    }
+  },
+  "coverage": {
+    "failOnUncovered": true
+  },
+  "smt": {
+    "requireProof": true
+  }
+}

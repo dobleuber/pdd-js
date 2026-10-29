@@ -7,9 +7,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
@@ -25,3 +25,8 @@ jobs:
       - run: pnpm --filter example-shopping-cart exec pdd mutate --ci
       # Proofs: every law marked { smt: true } must be proven by Z3 (requireProof in the config).
       - run: pnpm --filter example-shopping-cart exec pdd smt --ci
+      # The larger example: laws, coverage (failOnUncovered), proofs and law strength.
+      - run: pnpm --filter example-billing exec pdd check --ci
+      - run: pnpm --filter example-billing exec pdd coverage
+      - run: pnpm --filter example-billing exec pdd smt --ci
+      - run: pnpm --filter example-billing exec pdd mutate --ci
