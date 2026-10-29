@@ -6,6 +6,7 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import type { PddConfig } from "../config/schema.js";
 import { ExitCode, PddError } from "../shared/exit-codes.js";
+import { addDevCommand } from "../shared/install-hint.js";
 import { relPosix } from "../shared/paths.js";
 import { resolvePackage } from "../shared/resolve.js";
 import { sourceFiles } from "../shared/program.js";
@@ -38,8 +39,8 @@ interface StrykerModule {
   Stryker: new (options: Record<string, unknown>) => { runMutationTest(): Promise<StrykerMutantResult[]> };
 }
 
-function installHint(): string {
-  return `pnpm add -D ${STRYKER_PACKAGES.map((p) => `${p}@^10.1.1`).join(" ")}`;
+function installHint(root: string): string {
+  return addDevCommand(root, STRYKER_PACKAGES.map((p) => `${p}@^10.1.1`));
 }
 
 export async function findStrykerConfigFiles(root: string): Promise<string[]> {
@@ -81,7 +82,7 @@ export async function runStryker(config: PddConfig, opts: RunStrykerOptions): Pr
   const corePath = resolvePackage(config.root, "@stryker-mutator/core");
   const apiPath = resolvePackage(config.root, "@stryker-mutator/api/plugin");
   if (!corePath || !apiPath) {
-    throw new PddError(`pdd mutate needs Stryker. Install it with:\n  ${installHint()}`, ExitCode.CONFIG_ERROR);
+    throw new PddError(`pdd mutate needs Stryker. Install it with:\n  ${installHint(config.root)}`, ExitCode.CONFIG_ERROR);
   }
   const plugins: string[] = [];
   const checkers: string[] = [];
@@ -89,7 +90,7 @@ export async function runStryker(config: PddConfig, opts: RunStrykerOptions): Pr
     const checkerPath = resolvePackage(config.root, "@stryker-mutator/typescript-checker");
     if (!checkerPath) {
       throw new PddError(
-        `pdd mutate type-checks mutants ("mutate.typecheck"), which needs @stryker-mutator/typescript-checker:\n  ${installHint()}`,
+        `pdd mutate type-checks mutants ("mutate.typecheck"), which needs @stryker-mutator/typescript-checker:\n  ${installHint(config.root)}`,
         ExitCode.CONFIG_ERROR,
       );
     }

@@ -288,6 +288,7 @@ pnpm example       # build + pdd check on the example
 pnpm --filter example-shopping-cart exec pdd mutate   # mutation testing on the example
 pnpm --filter example-shopping-cart exec pdd smt      # proofs on the example
 pnpm --filter example-billing exec pdd check          # the larger example (also mutate, smt, coverage)
+pnpm smoke         # npm pack, install into fresh npm/pnpm projects, run the CLI (--quick, --pm npm, --keep)
 ```
 
 Layout: `packages/pdd` (the tool), `examples/*` (example projects), `redteam` (cheat

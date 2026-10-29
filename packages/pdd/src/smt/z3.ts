@@ -7,6 +7,7 @@
 import { pathToFileURL } from "node:url";
 import type { Arith, Bool, Context, Expr, Z3HighLevel, Z3LowLevel } from "z3-solver";
 import { ExitCode, PddError } from "../shared/exit-codes.js";
+import { addDevCommand } from "../shared/install-hint.js";
 import { resolvePackage } from "../shared/resolve.js";
 import type { Assignment, Term } from "./ir.js";
 import type { Leaf } from "./translate.js";
@@ -32,7 +33,7 @@ export interface Z3Session {
 export async function openZ3(root: string): Promise<Z3Session> {
   const resolved = resolvePackage(root, Z3_PACKAGE);
   if (resolved === undefined) {
-    throw new PddError(`pdd smt needs Z3. Install it with:\n  pnpm add -D ${Z3_PACKAGE}@${Z3_VERSION_RANGE}`, ExitCode.CONFIG_ERROR);
+    throw new PddError(`pdd smt needs Z3. Install it with:\n  ${addDevCommand(root, [`${Z3_PACKAGE}@${Z3_VERSION_RANGE}`])}`, ExitCode.CONFIG_ERROR);
   }
   const mod = (await import(pathToFileURL(resolved).href)) as Z3Module;
   const api = await mod.init();
