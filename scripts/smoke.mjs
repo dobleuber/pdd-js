@@ -39,7 +39,7 @@ for (const k of ["CI", "GITHUB_ACTIONS", "PDD_LOCK_KEY", "NODE_OPTIONS", "FORCE_
 function run(cmd, args, cwd, input) {
   const r = spawnSync(cmd, args, { cwd, env, input, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
   if (r.error) throw r.error;
-  return { code: r.status ?? 1, out: `${r.stdout}${r.stderr}` };
+  return { code: r.status ?? 1, out: `${r.stdout}${r.stderr}`, stdout: r.stdout };
 }
 
 let failures = 0;
@@ -184,7 +184,7 @@ try {
   if (!existsSync(path.join(repo, "packages/pdd/dist/cli.js"))) throw new Error("build first: pnpm build");
   const packed = run("npm", ["pack", "--pack-destination", root, "--json"], path.join(repo, "packages/pdd"));
   if (packed.code !== 0) throw new Error(`npm pack failed:\n${packed.out}`);
-  const tarball = path.join(root, JSON.parse(packed.out.slice(packed.out.indexOf("[")))[0].filename);
+  const tarball = path.join(root, JSON.parse(packed.stdout)[0].filename);
   console.log(`packed ${path.basename(tarball)} into ${root}`);
 
   for (const pm of managers) {
