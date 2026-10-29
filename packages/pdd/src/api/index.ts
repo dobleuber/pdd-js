@@ -1,7 +1,7 @@
 /**
  * The law language. This is the only module user code should import from pdd.
  *
- *   import { law, forAll, arb } from "pdd";
+ *   import { law, forAll, arb } from "@dobleuber/pdd";
  *   law("total is never negative", forAll(arbCart, (cart) => total(cart) >= 0));
  *
  * There is deliberately no law.skip / law.only / law.todo.
@@ -56,7 +56,7 @@ function assertArbitraries(values: unknown[]): fc.Arbitrary<unknown>[] {
   if (values.length === 0) throw new TypeError("pdd: forAll needs at least one arbitrary");
   values.forEach((v, i) => {
     if (!(v instanceof fc.Arbitrary)) {
-      throw new TypeError(`pdd: argument ${i + 1} of forAll is not an arbitrary (use arb.* from "pdd")`);
+      throw new TypeError(`pdd: argument ${i + 1} of forAll is not an arbitrary (use arb.* from "@dobleuber/pdd")`);
     }
   });
   return values as fc.Arbitrary<unknown>[];

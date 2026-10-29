@@ -2,7 +2,7 @@
  * Laws for the discount arithmetic, proven for EVERY input with `pdd smt` (Z3), not only
  * for the cases `pdd check` samples. `pdd check` still tests them like any other law.
  */
-import { law, forAll, arb } from "pdd";
+import { law, forAll, arb } from "@dobleuber/pdd";
 import { discounted } from "../src/cart.js";
 import { arbPercent } from "./arbitraries.js";
 

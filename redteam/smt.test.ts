@@ -91,7 +91,7 @@ describe("pdd smt", () => {
     const s = await sandbox(ctx);
     await s.write(
       "laws/big.laws.ts",
-      `import { law, forAll, arb } from "pdd";\nlaw("n + 1 is larger than n", forAll(arb.maxSafeNat(), (n) => n + 1 > n), { smt: true });\n`,
+      `import { law, forAll, arb } from "@dobleuber/pdd";\nlaw("n + 1 is larger than n", forAll(arb.maxSafeNat(), (n) => n + 1 > n), { smt: true });\n`,
     );
     // A human locks the new law, and turns requireProof off to see the report without failing.
     await s.edit("pdd.config.json", (t) => t.replace('"requireProof": true', '"requireProof": false'));

@@ -2,7 +2,7 @@
  * The spec for src/ledger.ts, written as a model: random sequences of operations run against
  * the real ledger and against the tiny reference below, and both must agree at every step.
  */
-import { law, forAll, arb, type Arbitrary } from "pdd";
+import { law, forAll, arb, type Arbitrary } from "@dobleuber/pdd";
 import { MAX_CENTS } from "../src/money.js";
 import { balance, deposit, emptyLedger, open, totalHeld, transfer, withdraw, type Ledger, type LedgerError, type Result } from "../src/ledger.js";
 

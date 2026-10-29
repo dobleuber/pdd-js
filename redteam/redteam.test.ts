@@ -79,7 +79,7 @@ describe("changing the spec", () => {
     await s.run(["lock", "--check"]);
     const { rm } = await import("node:fs/promises");
     await rm(`${s.dir}/${LAWS}`);
-    await s.write("laws/placeholder.laws.ts", `import { law, forAll, arb } from "pdd";\nlaw("x", forAll(arb.boolean(), () => true));\n`);
+    await s.write("laws/placeholder.laws.ts", `import { law, forAll, arb } from "@dobleuber/pdd";\nlaw("x", forAll(arb.boolean(), () => true));\n`);
     const r = await s.run(["check"]);
     expect(r.code, r.out).toBe(2);
     expect(r.out).toMatch(/removed\s+laws\/cart\.laws\.ts/);

@@ -80,7 +80,7 @@ export const noDynamicCode: GuardRule = {
   },
 };
 
-const FORBIDDEN_PACKAGES = /^(pdd|fast-check|tsx|esbuild)(\/|$)|^@fast-check\//;
+const FORBIDDEN_PACKAGES = /^(@dobleuber\/pdd|pdd|fast-check|tsx|esbuild)(\/|$)|^@fast-check\//;
 
 /** Names used by Stryker's instrumented code (`globalThis.__stryker__`, `stryMutAct_9fa48`, ...). */
 const STRYKER_INTERNALS = /__stryker|stryMutAct_|stryCov_|stryNS_/i;

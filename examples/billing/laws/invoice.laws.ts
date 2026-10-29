@@ -1,5 +1,5 @@
 /** The spec for src/invoice.ts. */
-import { law, forAll, arb, type Arbitrary } from "pdd";
+import { law, forAll, arb, type Arbitrary } from "@dobleuber/pdd";
 import { buildInvoice, MAX_QTY, type InvoiceInput, type InvoiceLine } from "../src/invoice.js";
 import { MAX_BPS, MAX_CENTS } from "../src/money.js";
 import { abs, arbBadBps, arbCommonBps, rejects, sum } from "./support.js";

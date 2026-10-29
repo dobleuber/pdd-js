@@ -20,7 +20,7 @@ const CONFIG_TEMPLATE = `{
 }
 `;
 
-const LAW_TEMPLATE = `import { law, forAll, arb } from "pdd";
+const LAW_TEMPLATE = `import { law, forAll, arb } from "@dobleuber/pdd";
 
 // Laws are the human-owned spec. Agents write the code; they must never edit this folder.
 // Replace this example with laws about your own code, e.g.:

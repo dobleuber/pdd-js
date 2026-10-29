@@ -100,7 +100,7 @@ export function up(x: number): number {
 `;
 
 const LAWS = `
-import { law, forAll, arb } from "pdd";
+import { law, forAll, arb } from "@dobleuber/pdd";
 import { clamp, risky, lineTotal, swap, sumTo, fact, bump, rated, label, LIMIT } from "../src/m.js";
 import { up } from "../src/shadow.js";
 import { twice } from "../src/sib.js";
@@ -132,7 +132,7 @@ law("untranslatable: module-level object", forAll(positive, (n) => rated(n) >= n
 law("untranslatable: strings are not supported", forAll(positive, (n) => label(n) || true), { smt: true });
 law("untranslatable: method calls", forAll(positive, (n) => up(n) > n), { smt: true });
 law("untranslatable: cannot see through map/filter/chain", forAll(positive.map((x) => x * 2), (n) => n > 0), { smt: true });
-law("untranslatable: imported from \\"pdd\\"", forAll(fake.integer({ min: 0, max: 1 }), (n) => n < 2), { smt: true });
+law("untranslatable: imported from \\"@dobleuber/pdd\\"", forAll(fake.integer({ min: 0, max: 1 }), (n) => n < 2), { smt: true });
 law("untranslatable: the literal \`true\`", forAll(positive, (n) => n > 0), { smt: !false });
 law("untranslatable: sits next to", forAll(positive, (n) => twice(n) === n * 2), { smt: true });
 
@@ -141,7 +141,7 @@ law("not marked either", forAll(positive, (n) => n > 0), { runs: 10 });
 `;
 
 const DIFF_LAWS = `
-import { law, forAll, arb } from "pdd";
+import { law, forAll, arb } from "@dobleuber/pdd";
 import { ${EXPRESSIONS.map((_, i) => `e${i}`).join(", ")} } from "../src/m.js";
 const any = arb.integer({ min: -100000, max: 100000 });
 ${EXPRESSIONS.map((_, i) => `law("e${i}", forAll(any, any, any, (a, b, r) => e${i}(a, b) === r), { smt: true });`).join("\n")}
@@ -157,7 +157,7 @@ beforeAll(async () => {
   const files: Record<string, string> = {
     "pdd.config.json": "{}",
     "tsconfig.json": JSON.stringify({
-      compilerOptions: { strict: true, target: "ES2022", module: "NodeNext", moduleResolution: "NodeNext", noEmit: true, paths: { pdd: [PDD_API] } },
+      compilerOptions: { strict: true, target: "ES2022", module: "NodeNext", moduleResolution: "NodeNext", noEmit: true, paths: { "@dobleuber/pdd": [PDD_API] } },
       include: ["src", "laws"],
     }),
     "src/m.ts": SRC,

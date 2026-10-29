@@ -17,6 +17,7 @@
 import { existsSync, realpathSync } from "node:fs";
 import path from "node:path";
 import ts from "typescript";
+import { PDD_PACKAGE } from "../shared/package-name.js";
 import { relPosix } from "../shared/paths.js";
 import * as ir from "./ir.js";
 import type { Term } from "./ir.js";
@@ -187,7 +188,7 @@ class Translator {
     return decls.length > 0 && decls.every((d) => this.program.isSourceFileDefaultLibrary(d.getSourceFile()));
   }
 
-  /** True when `id` is an import of `exportName` from the real "pdd" module. */
+  /** True when `id` is an import of `exportName` from the real pdd module. */
   isPddExport(id: ts.Identifier, exportName: string): boolean {
     if (this.pddApiFile === undefined) return false;
     const sym = this.checker.getSymbolAtLocation(id);
@@ -657,7 +658,7 @@ class Translator {
       if (["map", "filter", "chain"].includes(method)) {
         this.fail(`\`.${method}()\` on an arbitrary is not supported: pdd smt cannot see through map/filter/chain`, n);
       }
-      this.fail("pdd smt only understands arbitraries built with `arb.*` imported from \"pdd\"", n);
+      this.fail("pdd smt only understands arbitraries built with `arb.*` imported from \"@dobleuber/pdd\"", n);
     }
     const args = n.arguments;
     const options = (allowed: string[]): Map<string, ts.Expression> => {
@@ -794,7 +795,7 @@ class Translator {
       body = strip(body.body);
     }
     if (!ts.isCallExpression(body) || !ts.isIdentifier(body.expression) || !this.isPddExport(body.expression, "forAll")) {
-      this.fail("the law body must be forAll(...) from \"pdd\" (forAllAsync and builders are not supported)", body);
+      this.fail("the law body must be forAll(...) from \"@dobleuber/pdd\" (forAllAsync and builders are not supported)", body);
     }
     const args = body.arguments;
     const predicate = args[args.length - 1];
@@ -838,9 +839,9 @@ function samePath(a: string, b: string): boolean {
   return real(a) === real(b);
 }
 
-/** The file TypeScript resolves `import ... from "pdd"` to, from a given law file. */
+/** The file TypeScript resolves `import ... from PDD_PACKAGE` to, from a given law file. */
 function resolvePddApi(program: ts.Program, fromFile: string): string | undefined {
-  const r = ts.resolveModuleName("pdd", fromFile, program.getCompilerOptions(), ts.sys);
+  const r = ts.resolveModuleName(PDD_PACKAGE, fromFile, program.getCompilerOptions(), ts.sys);
   return r.resolvedModule?.resolvedFileName;
 }
 

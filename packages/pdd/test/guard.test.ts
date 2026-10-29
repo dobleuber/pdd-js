@@ -105,7 +105,7 @@ describe("runtime integrity", () => {
   });
 
   test("no-pdd-internals", () => {
-    expect(ids(`import { law } from "pdd";`)).toContain("no-pdd-internals");
+    expect(ids(`import { law } from "@dobleuber/pdd";`)).toContain("no-pdd-internals");
     expect(ids(`import * as fc from "fast-check";`)).toContain("no-pdd-internals");
     expect(ids(`import x from "../node_modules/pdd/dist/api/registry.js";`)).toContain("no-pdd-internals");
     expect(ids(`import { z } from "zod";`)).toEqual([]);

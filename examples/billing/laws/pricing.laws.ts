@@ -2,7 +2,7 @@
  * The spec for src/pricing.ts. Every law is proven for every input by `pdd smt`
  * (and tested like any other law by `pdd check`).
  */
-import { law, forAll, arb } from "pdd";
+import { law, forAll, arb } from "@dobleuber/pdd";
 import { rejects } from "./support.js";
 import { MAX_CENTS } from "../src/money.js";
 import { MAX_DAYS, MAX_UNITS, planChange, prorate, TIER1_PRICE, TIER1_UNITS, TIER2_PRICE, TIER2_UNITS, TIER3_PRICE, usageCharge } from "../src/pricing.js";
@@ -110,6 +110,8 @@ law(
       () => prorate(price, d, MAX_DAYS + k),
       () => prorate(price, Math.min(d, period - 1), period - 0.5),
       () => prorate(price, -k, period),
+      // At price 0, roundDiv sees -0 and would not catch a negative day count by itself.
+      () => prorate(0, -k, period),
       () => prorate(price, period + k, period),
       () => prorate(price, Math.min(d, period - 1) + 0.5, period),
     ].every(rejects);

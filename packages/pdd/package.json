@@ -1,9 +1,24 @@
 {
-  "name": "pdd",
+  "name": "@dobleuber/pdd",
   "version": "0.1.0",
   "description": "Proof-Driven Development for JS/TS: human-owned laws, a mechanical verdict and an anti-cheat layer for AI-written code.",
   "type": "module",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dobleuber/pdd-js.git",
+    "directory": "packages/pdd"
+  },
+  "homepage": "https://github.com/dobleuber/pdd-js#readme",
+  "bugs": "https://github.com/dobleuber/pdd-js/issues",
+  "keywords": [
+    "property-based-testing",
+    "fast-check",
+    "mutation-testing",
+    "z3",
+    "ai-agents",
+    "specification"
+  ],
   "engines": {
     "node": ">=20.11"
   },
@@ -21,6 +36,7 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "prepublishOnly": "tsc -p tsconfig.json",
     "test": "vitest run"
   },
   "dependencies": {
@@ -61,5 +77,8 @@
     "@types/picomatch": "^4.0.3",
     "vitest": "^5.0.5",
     "z3-solver": "5.3.2"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

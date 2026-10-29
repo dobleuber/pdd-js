@@ -2,13 +2,13 @@
   "version": 1,
   "algorithm": "sha256",
   "files": {
-    "laws/invoice.laws.ts": "889e005a6d530f678b5d36dd7a81afb4c880498cfe244dc0295987cf14a0ce13",
-    "laws/ledger.laws.ts": "0a702b1220c9ddecf771b628dd994131d33af5aaa935b4ef248766ac290d8999",
-    "laws/money.laws.ts": "adee49931ada575afe476ee1ea495ba6ae0fa58bcff01907724b8db8ce043e36",
-    "laws/pricing.laws.ts": "4b490562b2dcd6650122b4a8f46fc66273c275c0ab1e0d03c6928ffa578a4f7e",
-    "laws/support.ts": "e9666071ff7197e134192484f95b4779aacbb06f1f6d8c2f5ba07ae8e79dff3d",
+    "laws/invoice.laws.ts": "eb23037d75ea8020c8ce7b9c5be42e8cca72641830ae00ed6e68c07d78555bdd",
+    "laws/ledger.laws.ts": "1d7fddba3148a70674e815176eb1c6ac63a8c5d804661e3f252b63fc79b8f807",
+    "laws/money.laws.ts": "14fdfda0978a2f0ccd5a716a433972a3eceb320902250c3078e5afdbb71c604a",
+    "laws/pricing.laws.ts": "46b733caebbfbf23713e0401b88f3d43b4d73a88f17198472ca8c6fc3098a21f",
+    "laws/support.ts": "781df3777ffca84ce4e4c9900a8734378e01c4d29be4d56bb156a1a99c9746f8",
     "pdd.config.json": "880338459b4a9c3378df54e87d3794177706588f2d671a40fbc601d407e87929",
     "tsconfig.json": "c2c609dbadc68937556054bde21f204c44bc6aeb058b625c736967efe187765d"
   },
-  "rootHash": "058c29a4aa373eee53950023d1912112798ce0cff9e871149fff78cfcb39d1ae"
+  "rootHash": "96329a4536ba65fe0992a0c280cc8cf309c749f04ca25c48435b1dfd40b7fd96"
 }

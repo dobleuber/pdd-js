@@ -7,9 +7,9 @@
     "node": ">=20.11"
   },
   "scripts": {
-    "build": "pnpm --filter pdd build",
-    "test": "pnpm build && pnpm --filter pdd test && pnpm --filter pdd-redteam test",
-    "test:unit": "pnpm --filter pdd test",
+    "build": "pnpm --filter @dobleuber/pdd build",
+    "test": "pnpm build && pnpm --filter @dobleuber/pdd test && pnpm --filter pdd-redteam test",
+    "test:unit": "pnpm --filter @dobleuber/pdd test",
     "redteam": "pnpm build && pnpm --filter pdd-redteam test",
     "example": "pnpm build && pnpm --filter example-shopping-cart check"
   }

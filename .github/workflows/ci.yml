@@ -18,7 +18,7 @@ jobs:
       # pnpm skips linking a workspace bin whose target does not exist yet, so
       # node_modules/.bin/pdd only appears after dist/cli.js has been built.
       - run: pnpm install --frozen-lockfile --offline
-      - run: pnpm --filter pdd test
+      - run: pnpm --filter @dobleuber/pdd test
       - run: pnpm --filter pdd-redteam test
       - run: pnpm --filter example-shopping-cart exec pdd check --ci
       # Law strength: fails (exit 6) if the mutation score drops below the locked threshold.

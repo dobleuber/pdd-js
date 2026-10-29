@@ -1,4 +1,4 @@
-import { arb, forAll, law } from "pdd";
+import { arb, forAll, law } from "@dobleuber/pdd";
 // @ts-expect-error -- plain JS fixture without type declarations
 import { double, offset } from "../src/m.js";
 

@@ -2,7 +2,7 @@
  * The spec for src/money.ts. Laws marked { smt: true } are proven for every input by
  * `pdd smt`; `pdd check` also tests them like any other law.
  */
-import { law, forAll, arb } from "pdd";
+import { law, forAll, arb } from "@dobleuber/pdd";
 import { allocate, formatCents, MAX_BPS, MAX_CENTS, parseCents, percentOf, roundDiv } from "../src/money.js";
 import { abs, arbBps, arbCents, rejects, sum } from "./support.js";
 

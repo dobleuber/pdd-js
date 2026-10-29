@@ -1,6 +1,6 @@
 /**
  * Each scenario gets a fresh copy of examples/shopping-cart in a temp folder,
- * with node_modules/pdd linked to this repo's build, and runs the real CLI.
+ * with node_modules/@dobleuber/pdd linked to this repo's build, and runs the real CLI.
  */
 import { spawn } from "node:child_process";
 import { cp, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
@@ -37,8 +37,8 @@ function cleanEnv(extra: Record<string, string> = {}): NodeJS.ProcessEnv {
 export async function makeSandbox(): Promise<Sandbox> {
   const dir = await mkdtemp(path.join(tmpdir(), "pdd-redteam-"));
   await cp(example, dir, { recursive: true, filter: (src) => path.basename(src) !== "node_modules" });
-  await mkdir(path.join(dir, "node_modules"), { recursive: true });
-  await symlink(path.join(repo, "packages/pdd"), path.join(dir, "node_modules/pdd"), "dir");
+  await mkdir(path.join(dir, "node_modules/@dobleuber"), { recursive: true });
+  await symlink(path.join(repo, "packages/pdd"), path.join(dir, "node_modules/@dobleuber/pdd"), "dir");
 
   const sandbox: Sandbox = {
     dir,

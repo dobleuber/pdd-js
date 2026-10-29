@@ -1,5 +1,5 @@
 /** Shared generators and helpers for the laws. Human-owned and locked, like the laws themselves. */
-import { arb, type Arbitrary } from "pdd";
+import { arb, type Arbitrary } from "@dobleuber/pdd";
 import { MAX_BPS, MAX_CENTS } from "../src/money.js";
 
 /** Any amount the system handles. */

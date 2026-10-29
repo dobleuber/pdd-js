@@ -5,21 +5,21 @@ const scan = (src: string) => scanLawFile("x.laws.ts", src);
 
 describe("scanLawFile", () => {
   test("counts top-level laws and their names", () => {
-    const r = scan(`import { law, forAll, arb } from "pdd";
+    const r = scan(`import { law, forAll, arb } from "@dobleuber/pdd";
 law("a", forAll(arb.integer(), () => true));
 law(\`b\`, forAll(arb.integer(), () => true));`);
     expect(r).toEqual({ count: 2, names: ["a", "b"], violations: [] });
   });
 
   test("supports aliased and namespace imports", () => {
-    const r = scan(`import { law as L } from "pdd"; import * as P from "pdd";
+    const r = scan(`import { law as L } from "@dobleuber/pdd"; import * as P from "@dobleuber/pdd";
 L("a", x); P.law("b", y);`);
     expect(r.count).toBe(2);
     expect(r.violations).toEqual([]);
   });
 
   test("flags laws hidden behind a condition", () => {
-    const r = scan(`import { law } from "pdd";
+    const r = scan(`import { law } from "@dobleuber/pdd";
 if (process.env.CI) law("hidden", x);
 law("visible", y);`);
     expect(r.count).toBe(1);
@@ -29,7 +29,7 @@ law("visible", y);`);
   });
 
   test("flags laws inside functions and loops", () => {
-    const r = scan(`import { law } from "pdd";
+    const r = scan(`import { law } from "@dobleuber/pdd";
 for (const n of [1, 2]) law("n" + n, x);
 function f() { law("inner", y); }`);
     expect(r.violations.map((v) => v.message)).toEqual([
@@ -39,7 +39,7 @@ function f() { law("inner", y); }`);
   });
 
   test("flags computed names and aliasing", () => {
-    const r = scan(`import { law } from "pdd";
+    const r = scan(`import { law } from "@dobleuber/pdd";
 law(name, x);
 const L = law;`);
     expect(r.violations.map((v) => v.message)).toEqual([

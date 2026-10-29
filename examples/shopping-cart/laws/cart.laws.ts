@@ -2,7 +2,7 @@
  * The spec for src/cart.ts, written by a human. The agent's job is to make
  * `pdd check` pass without touching this folder.
  */
-import { law, forAll } from "pdd";
+import { law, forAll } from "@dobleuber/pdd";
 import { addItem, applyDiscount, createCart, itemCount, removeItem, total, type LineItem } from "../src/cart.js";
 import { arbBadPercent, arbBadPrice, arbBadQty, arbCart, arbItems, arbLineItem, arbPercent, arbSku } from "./arbitraries.js";
 

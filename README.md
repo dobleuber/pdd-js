@@ -21,8 +21,17 @@ applies it to TypeScript, without rewriting anything:
 ## Quick start
 
 ```bash
-pnpm add -D pdd
+pnpm add -D @dobleuber/pdd
 pnpm exec pdd init --claude --ci
+```
+
+The package is `@dobleuber/pdd` (`pdd` on npm is an unrelated project); the command is still
+`pdd`, and laws import from `"@dobleuber/pdd"`. Until the first release is on npm, install it
+from a clone of this repository:
+
+```bash
+git clone https://github.com/dobleuber/pdd-js.git && cd pdd-js && pnpm install && pnpm build
+cd /path/to/your-project && pnpm add -D @dobleuber/pdd@file:/path/to/pdd-js/packages/pdd
 ```
 
 `init` creates `pdd.config.json`, an example law in `laws/`, the first `pdd.lock.json`, the
@@ -38,7 +47,7 @@ The workflow:
 
 ```ts
 // laws/cart.laws.ts
-import { law, forAll } from "pdd";
+import { law, forAll } from "@dobleuber/pdd";
 import { addItem, total } from "../src/cart.js";
 import { arbCart, arbLineItem } from "./arbitraries.js";
 
@@ -50,7 +59,7 @@ law(
 
 - `law(name, forAll(...arbitraries, predicate), options?)` — options: `{ runs, timeoutMs, smt }`.
 - `forAllAsync(...)` for async predicates.
-- `arb.*` — arbitraries (a curated subset of fast-check). Always import them from `"pdd"`.
+- `arb.*` — arbitraries (a curated subset of fast-check). Always import them from `"@dobleuber/pdd"`.
 - The predicate **must return `true` or `false`**. A forgotten `return` (`undefined`) or a
   `Promise` inside `forAll` makes the law fail, never pass.
 - `law()` goes at the top level of the file, with a literal name. There is no `law.skip` or
@@ -182,7 +191,7 @@ Pass the key only on that command; do not leave it exported in the shell where t
 | `no-mock-under-law` | tests | `vi.mock`/`jest.mock` of modules the laws use |
 | `no-global-patch` | src | `Math.random = ...`, `Array.prototype.x = ...`, `Object.defineProperty(globalThis, ...)` |
 | `no-dynamic-code` | src | `eval`, `new Function`, `import()`/`require()` with a computed specifier |
-| `no-pdd-internals` | src | importing `pdd`, `fast-check`, `node_modules` paths or the laws; Stryker's globals (`__stryker__`) |
+| `no-pdd-internals` | src | importing `@dobleuber/pdd`, `fast-check`, `node_modules` paths or the laws; Stryker's globals (`__stryker__`) |
 | `no-env-sniff` | src | reading `CI`, `GITHUB_ACTIONS`, `VITEST`, `PDD_*`, `__STRYKER_*`, ... |
 | `no-runner-ipc` | src | `process.send`, `process.on("message")` |
 
@@ -283,6 +292,12 @@ pnpm --filter example-billing exec pdd check          # the larger example (also
 
 Layout: `packages/pdd` (the tool), `examples/*` (example projects), `redteam` (cheat
 scenarios), `docs/`.
+
+Publishing (the build runs first, through `prepublishOnly`):
+
+```bash
+pnpm --filter @dobleuber/pdd publish
+```
 
 ### Roadmap
 

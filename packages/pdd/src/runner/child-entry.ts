@@ -79,7 +79,7 @@ async function runLaw(record: LawRecord, init: ChildInit, ns: StrykerNamespace |
     return {
       ...base,
       status: "errored",
-      error: "the law body must be forAll(...) or forAllAsync(...) from \"pdd\"",
+      error: "the law body must be forAll(...) or forAllAsync(...) from \"@dobleuber/pdd\"",
       timeMs: clock() - start,
     };
   }

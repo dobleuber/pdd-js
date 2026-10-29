@@ -1,5 +1,5 @@
 /** Generators for the laws. Human-owned and locked, like the laws themselves. */
-import { arb, type Arbitrary } from "pdd";
+import { arb, type Arbitrary } from "@dobleuber/pdd";
 import { addItem, createCart, type Cart, type LineItem } from "../src/cart.js";
 
 /** A few fixed SKUs so carts often repeat one, plus random ones. */

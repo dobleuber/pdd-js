@@ -167,7 +167,7 @@ export async function runLawFile(file: string, opts: RunLawsOptions): Promise<Fi
     if (done.registered !== scan.count) {
       tampering.push(
         `${scan.count} law(s) are declared in the file but ${done.registered} registered at runtime` +
-          (done.registered === 0 && scan.count > 0 ? ` (is "pdd" resolving to a different copy of the package?)` : ""),
+          (done.registered === 0 && scan.count > 0 ? ` (is "@dobleuber/pdd" resolving to a different copy of the package?)` : ""),
       );
     } else if (scan.violations.length === 0 && done.names.join("\u0000") !== scan.names.join("\u0000")) {
       tampering.push("the laws that registered at runtime differ from the ones declared in the file");

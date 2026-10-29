@@ -8,7 +8,7 @@ random testing never samples.
 
 ```ts
 // laws/discount.laws.ts
-import { law, forAll, arb } from "pdd";
+import { law, forAll, arb } from "@dobleuber/pdd";
 import { discounted } from "../src/cart.js";
 
 law(
@@ -102,7 +102,7 @@ The translator is the part that could lie, so it is built to fail closed:
   (e.g. a sum may leave the safe-integer range) without breaking the law: the law is reported as
   *not proven*, never as proven.
 - **Names are resolved with the type checker.** `Math` must be the real global (a local
-  `const Math = ...` is not), `arb`, `law` and `forAll` must come from `"pdd"`, and every reference
+  `const Math = ...` is not), `arb`, `law` and `forAll` must come from `"@dobleuber/pdd"`, and every reference
   is followed to its declaration.
 - **The file that runs is the file that was read.** If a `.js` file sits next to a `.ts` file the
   proof relies on, the law is not translated: at runtime the import could load the `.js` file.

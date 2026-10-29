@@ -1,4 +1,5 @@
 import ts from "typescript";
+import { PDD_PACKAGE } from "../shared/package-name.js";
 
 export interface StaticViolation {
   line: number;
@@ -19,7 +20,7 @@ export interface StaticLawScan {
  * registers at runtime, so laws can't be hidden behind conditions
  * (`if (!process.env.CI) law(...)`) or registered from somewhere else.
  *
- * Rules: law() is imported from "pdd", called directly (never aliased or passed
+ * Rules: law() is imported from "@dobleuber/pdd", called directly (never aliased or passed
  * around), only as a top-level statement, with a string literal name.
  */
 export function scanLawFile(fileName: string, text: string): StaticLawScan {
@@ -37,7 +38,7 @@ export function scanLawFile(fileName: string, text: string): StaticLawScan {
 
   for (const stmt of sf.statements) {
     if (!ts.isImportDeclaration(stmt) || !ts.isStringLiteral(stmt.moduleSpecifier)) continue;
-    if (stmt.moduleSpecifier.text !== "pdd") continue;
+    if (stmt.moduleSpecifier.text !== PDD_PACKAGE) continue;
     const bindings = stmt.importClause?.namedBindings;
     if (!bindings) continue;
     if (ts.isNamespaceImport(bindings)) namespaces.add(bindings.name.text);
